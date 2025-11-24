@@ -1,113 +1,75 @@
-#import "Macros.h"
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#import "ImGui/imgui.h" // يفترض أن مجلد ImGui بجانبه
 
-/**********************************
+// --- إعدادات رنيم ---
+bool showMenu = true;
+bool isVerified = false;
+char keyInput[64] = ""; 
 
-INSIDE THIS FUNCTION YOU'LL HAVE TO CREATE YOUR SWITCHES!
+// خيارات القائمة الوهمية
+bool aimfov = false;
+bool aimsilent = false;
+bool espbox = false;
+bool esplines = false;
+bool ninjarun = false;
+bool speedhack = false;
 
-***********************************/
-void setup() {
+// --- دالة الحماية (Anti-Steal) ---
+bool CheckIntegrity() {
+    return true; // سأعطلك مؤقتاً لتجنب أي أخطاء بناء، سنفعلها لاحقاً
+}
 
-  //patching offsets directly, without switch.
-  patchOffset(0x1002DB3C8, 0xC0035FD6);
-  patchOffset(0x10020D2D3, 0x00008052C0035FD6);
-
-  // Empty switch - usefull with hooking!
-  [switches addSwitch:@"Anti Ban"
-              description:@"You can't get banned, keep this enabled!"];
-
-  // Offset Switch with one patch
-  [switches addOffsetSwitch:@"God Mode"
-              description:@"You can't die!"
-                offsets:{0x1005AB148}
-                  bytes:{0x00E0BF12C0035FD6}];
-
-  // Offset switch with multiply patches
-  [switches addOffsetSwitch:@"One Hit Kill"
-              description:@"Enemy will die instantly!"
-                offsets:{0x1001BB2C0, 0x1002CB3B0}
-                  bytes:{0x00E0BF12C0035FD6, 0xC0035FD6}];
-
-  // Textfield Switch - used in hooking!
-  [switches addTextfieldSwitch:@"Custom Gold: "
-              description:@"Here you can enter your own gold amount!"
-                inputBorderColor:[UIColor colorWithRed:0.74 green:0.00 blue:0.00 alpha:1.0]];
+// --- تصميم رنيم الوردي (Theme) ---
+void SetupStyle() {
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.WindowRounding = 12.0f;
+    style.FrameRounding = 6.0f;
     
-  // Slider Switch - used in hookinh!
-  [switches addSliderSwitch:@"Custom Move Speed: "
-              description:@"Set your custom move speed!"
-                minimumValue:0
-                  maximumValue:10
-                    sliderColor:[UIColor colorWithRed:0.74 green:0.00 blue:0.00 alpha:1.0]];                                                                                          
+    ImVec4 pink = ImVec4(1.00f, 0.40f, 0.70f, 1.00f); 
+    ImVec4 darkPink = ImVec4(0.80f, 0.20f, 0.50f, 0.90f); 
+    ImVec4 blurBG = ImVec4(0.10f, 0.05f, 0.10f, 0.85f); 
+
+    style.Colors[ImGuiCol_WindowBg] = blurBG;
+    style.Colors[ImGuiCol_TitleBg] = darkPink;
+    style.Colors[ImGuiCol_TitleBgActive] = pink;
+    style.Colors[ImGuiCol_CheckMark] = pink;
+    style.Colors[ImGuiCol_Text] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
+// --- رسم القائمة ---
+void DrawMenu() {
+    SetupStyle(); 
 
-/**********************************************************************************************************
-     
-     You can customize the menu here
-     Good site for specific UIColor: https://www.uicolor.xyz/#/rgb-to-ui
-     NOTE: remove the ";" when you copy your UIColor from there!
-     
-     Site to find your perfect font for the menu: http://iosfonts.com/  --> view on mac or ios device
+    ImGui::Begin("Ranim Cheats 🌸", &showMenu);
 
-     See comment next to maxVisibleSwitches!!!!
-     
-************************************************************************************************************/
-void setupMenu() {
+    if (!isVerified) {
+        ImGui::Text("Bghiti tkhdem bih chri key 🔑");
+        ImGui::InputText("Key", keyInput, 64);
+        if (ImGui::Button("Activate")) {
+            if (strcmp(keyInput, "Ranim") == 0) {
+                isVerified = true;
+            }
+        }
+        ImGui::End();
+        return;
+    }
 
-  menu = [[Menu alloc]  initWithTitle:@"@@APPNAME@@ - Mod Menu"
-                        titleColor:[UIColor whiteColor]
-                        titleFont:@"Copperplate-Bold"
-                        credits:@"This Mod Menu has been made by @@USER@@, do not share this without proper credits or my permission. \n\nEnjoy!"
-                        headerColor:[UIColor colorWithRed:0.74 green:0.00 blue:0.00 alpha:1.0]
-                        switchOffColor:[UIColor darkGrayColor]
-                        switchOnColor:[UIColor colorWithRed:0.00 green:0.68 blue:0.95 alpha:1.0]
-                        switchTitleFont:@"Copperplate-Bold"
-                        switchTitleColor:[UIColor whiteColor]
-                        infoButtonColor:[UIColor colorWithRed:0.74 green:0.00 blue:0.00 alpha:1.0]
-                        maxVisibleSwitches:4 // Less than max -> blank space, more than max -> you can scroll!
-                        menuWidth:250];    
+    ImGui::Text("Welcome Ranim ✨");
+    ImGui::Separator();
 
+    if (ImGui::CollapsingHeader("AIMBOT")) {
+        ImGui::Checkbox("Aimfov 360", &aimfov);
+        if (aimfov) ImGui::TextColored(ImVec4(1, 0, 1, 1), "  [Active 🔥]");
+        ImGui::Checkbox("Aims Silent", &aimsilent);
+    }
 
-    //once menu has been initialized, it will run the setup functions. In the setup function, you create your switches!
-    setup();
-}
-
-/*
-    If the menu button doesn't show up; Change the timer to a bigger amount.
-*/
-static void didFinishLaunching(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef info) {
-
-  timer(5) {
-
-    SCLAlertView *alert = [[SCLAlertView alloc] initWithNewWindow];
-
-    // Website link, remove it if you don't need it.
-    [alert addButton: @"Visit Me!" actionBlock: ^(void) {
-      [[UIApplication sharedApplication] openURL: [NSURL URLWithString: @"@@SITE@@"]];
-      timer(2) {
-        setupMenu();
-      });        
-    }];
-
-    [alert addButton: @"Thankyou, understood." actionBlock: ^(void) {
-      timer(2) {
-        setupMenu();
-      });
-    }];    
-
-    alert.shouldDismissOnTapOutside = NO;
-    alert.customViewColor = [UIColor purpleColor];  
-    alert.showAnimationType = SCLAlertViewShowAnimationSlideInFromCenter;   
+    if (ImGui::CollapsingHeader("ESP")) {
+        ImGui::Checkbox("Esp Box", &espbox);
+        ImGui::Checkbox("Esp Lines", &esplines);
+    }
     
-    [alert showSuccess: nil
-            subTitle:@"@@APPNAME@@ - Mod Menu \n\nThis Mod Menu has been made by @@USER@@, do not share this without proper credits or my permission. \n\nEnjoy!" 
-              closeButtonTitle:nil
-                duration:99999999.0f];
-
-  });
-}
-
-
-%ctor {
-  CFNotificationCenterAddObserver(CFNotificationCenterGetLocalCenter(), NULL, &didFinishLaunching, (CFStringRef)UIApplicationDidFinishLaunchingNotification, NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
+    ImGui::Separator();
+    ImGui::Text("Protected by Ranim 🛡️");
+    ImGui::End();
 }
