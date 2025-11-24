@@ -6,7 +6,7 @@ ARCHS = arm64 #arm64e
 
 include $(THEOS)/makefiles/common.mk
 
-TWEAK_NAME = @@PROJECTNAME@@
+TWEAK_NAME = Ranim
 
 @@PROJECTNAME@@_CCFLAGS = -std=c++11 -fno-rtti -fno-exceptions -DNDEBUG
 CFLAGS = -fobjc-arc #-w #-Wno-deprecated -Wno-deprecated-declarations
