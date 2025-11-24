@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "ImGui/imgui.h" // يفترض أن مجلد ImGui بجانبه
+#import "imgui/imgui.h" // يفترض أن مجلد ImGui بجانبه
 
 // --- إعدادات رنيم ---
 bool showMenu = true;
@@ -73,3 +73,4 @@ void DrawMenu() {
     ImGui::Text("Protected by Ranim 🛡️");
     ImGui::End();
 }
+
